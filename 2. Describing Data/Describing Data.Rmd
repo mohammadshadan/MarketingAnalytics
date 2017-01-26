@@ -1,0 +1,24 @@
+---
+title: "Describing Data"
+author: "MOHAMMAD SHADAN"
+date: "January 26, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+store.df <- read.csv("http://goo.gl/QPDdMl")
+```
+
+
+```{r}
+rm(ls()=all)
+k.stores <- 20  # 20 stores, using "k." for "constant"
+
+k.weeks <- 104  # 2 years of data each
+
+# create a data frame of initially missing values to hold the data
+store.df <- data.frame(matrix(NA, ncol=10, nrow=k.stores*k.weeks))
+names(store.df) <- c("storeNum", "Year", "Week", "p1sales", "p2sales",
+"p1price", "p2price", "p1prom", "p2prom", "country")
+```
+
