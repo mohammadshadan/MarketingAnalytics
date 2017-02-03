@@ -1,10 +1,15 @@
 ---
-title: "Describing Data"
+title: "Fundamentals for Data Analysis"
 author: "MOHAMMAD SHADAN"
 date: "January 26, 2017"
-output: html_document
+output: 
+  html_document: 
+    toc: yes
+    toc_float: true
 ---
 
+
+##3.1 Simulating Data 
 ```{r setup, include=FALSE}
 store.df <- read.csv("http://goo.gl/QPDdMl")
 ```
