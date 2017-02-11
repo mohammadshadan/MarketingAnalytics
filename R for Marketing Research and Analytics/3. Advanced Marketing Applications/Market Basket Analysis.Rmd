@@ -1,0 +1,141 @@
+---
+title: "Market Basket Analysis"
+author: "MOHAMMAD SHADAN"
+date: "February 4, 2017"
+output: 
+  html_document: 
+    keep_md: yes
+    toc: yes
+    toc_float: yes
+---
+
+Many firms compile records of customer transactions. These data sets take diverse forms including products that are purchased together, services that are tracked over time in a customer relationship management (CRM) system, sequences of visits and actions on aWeb site, and records of customer support calls. These records are very valuable to marketers and inform us about customers' purchasing patterns, ways in which we might optimize pricing or inventory given the purchase patterns, and relationships between the purchases and other customer information.
+
+Such records may comprise an enormous number of data points yet with relatively little information in each observation. This means that simple analyses such as correlation and linear regression are not applicable because those methods assume complete or near-complete measurement for each case. For example, consider the number of products in a typical supermarket. Most items are not purchased with most other items in any transaction because there are so many possible combinations.
+
+
+##12.1 The Basics of Association Rules
+
+Some terms to understand for association rules :   
+
+- `Association` : An association is simply the co-occurrence of two or more things.
+- `Set of items` : A set of items is a group of one or more items, and might be written as {item1, item2, . . .}
+- `Transaction` : A transaction is a set of items that co-occur in an observation
+- `Market Basket` : The set of things that are purchased or considered for purchase at one time.
+- `Rule` : A rule expresses the incidence across transactions of one set of items as a condition of another set of items
+
+###12.1.1 Metrics
+
+Association rules are expressed with a few common metrics that reflect the rules of conditional probability.
+
+- `Support` : The support for a set of items is the proportion of all transactions that contain the set. If {hot dogs, soda} appears in 10 out of 200 transactions, then support({hotdogs,soda}) = 0.05. It does not matter if those 10 transactions contain other items; support is defined separately for every unique set of items.
+- `Confidence` : Confidence is the support for the co-occurrence of all items in a rule, conditional on the support for the left-hand set alone. Thus, confidence(X -> Y) = support(X and Y)/support(X)
+- `Lift` :  the support of a set conditional on the joint support of each element, or lift(X =>Y)=support(X and Y)/(support(X)support(Y))
+
+These three measures tell us different things. When we search for rules we wish to exceed a minimum threshold on each: to find item sets that occur relatively frequently in transactions (support), that show strong conditional relationships (confidence), and that are more common than chance (lift).
+
+We use the R package arules to illustrate association rules. arules encapsulates many popular methods for mining associations and provides extensions for visualization [69]. Readers who are interested in the algorithms that generate association rules should review the references in the primary arules documentation
+
+##12.2 Retail Transaction Data: Market Baskets
+
+The first two data sets we examine contain supermarket transaction data. We first examine a small data set that is included with the `arules` package. This data set is useful despite its small size because the items are labeled with category names, making them easier to read. Then we turn to a larger data set from a supermarket chain whose data is disguised but is more typical of large data sets.
+
+###12.2.1 Example Data: Groceries
+
+This data set comprises lists of items purchased together (that is, market baskets), where the individual items have been recorded as category labels instead of product names. You should install the `arules` and `arulesViz`
+packages before proceeding.
+
+```{r}
+# install.packages("arules")
+# install.packages("arulesViz")
+library(arules)
+library(arulesViz)
+
+data("Groceries")
+
+summary(Groceries)
+class(Groceries)
+inspect(head(Groceries, 3))
+
+groc.rules <- apriori(Groceries, parameter=list(supp=0.01, conf=0.3, target="rules"))
+
+inspect(subset(groc.rules, lift > 3))
+
+```
+
+###12.2.2 Supermarket Data
+
+We now investigate associations in a larger set of retail transaction data from a Belgian supermarket chain. This data set comprises market baskets of items purchased together, where each record includes arbitrarily numbered item numbers without item descriptions (to protect the chain's proprietary data). This data set is made publicly.
+
+```{r}
+retail.raw <- readLines("http://fimi.ua.ac.be/data/retail.dat")
+# write.csv(retail.raw, file = "retail_raw.csv")   #Save file as .csv file for later use
+# retail.raw <- readLines("http://goo.gl/FfjDAO")
+class(retail.raw)
+head(retail.raw)
+
+tail(retail.raw)
+
+summary(retail.raw)
+
+retail.list <- strsplit(retail.raw, " ")
+class(retail.list)
+
+names(retail.list)
+length(retail.list)
+
+names(retail.list) <- paste("Trans", 1:length(retail.list), sep="")
+str(retail.list)
+library(car)
+some(retail.list)
+
+rm(retail.raw)
+
+retail.trans <- as(retail.list, "transactions") # takes a few seconds
+class(retail.trans)
+
+summary(retail.trans)
+88162*16470
+rm(retail.list)
+```
+
+##12.3 Finding and Visualizing Association Rules
+
+```{r}
+retail.rules <- apriori(retail.trans, parameter=list(supp=0.001, conf=0.4))
+```
+
+```{r}
+library(arulesViz)
+plot(retail.rules)
+
+# plot(retail.rules, interactive=TRUE)
+```
+
+
+###12.3.1 Finding and Plotting Subsets of Rules
+
+A common goal in market basket analysis is to find rules with high lift.
+
+We can find such rules easily by sorting the larger set of rules by lift. We extract the 50 rules with highest lift using sort() to order the rules by lift and taking 50 from the head():
+
+```{r}
+retail.hi <- head(sort(retail.rules, by="lift"), 50)
+inspect(retail.hi)
+```
+
+Support and lift are identical for an item set regardless of the items' order within a rule (left-hand or right-hand side of the rule). Thus the first two rules-which include the same two items {696} and {699} on opposite sides of the conditional arrow-are identical for support and lift. However, confidence reflects direction because it computes occurrence the right-hand set conditional on the left-hand side set, and differs slightly for the first two rules.
+
+A graph display of rules may be useful to seek higher level themes and patterns. We chart the top 50 rules by lift with plot(..., method="graph") and display rules as the intersection of items by adding the graph option, control=list(type="item")):
+
+```{r}
+plot(retail.hi, method="graph", control=list(type="items"))
+```
+
+The resulting chart is shown in Fig. 12.3. Positioning of items on the graph may differ for your system, but the item clusters should be similar. Each circle there represents a rule with inbound arrows coming from items on the left-hand side of the rule and outbound arrows going to the right-hand side. The size (area) of the circle represents the rule's support, and shade represents lift (darker indicates higher lift).
+
+Figure 12.3 shows several patterns of interest. Items 696 and 699 form a tight set; there are item clusters for {3402, 3535, 3537}, {309, 1080, 1269, 1378, 1379, 1380}, and so forth; and item 39 appears as a key item in two sets of items that otherwise do not overlap. By exploring sets of rules with various levels of lift and support, and with specific subsets of items (see the usage of %in% in arules help), an analyst may be able to find patterns that suggest interesting hypotheses and trends. We will see a further example of this for non-transactional data in Sect. 12.4
+below.
+
+###12.3.2 Using Profit Margin Data with Transactions: An Initial Start
+

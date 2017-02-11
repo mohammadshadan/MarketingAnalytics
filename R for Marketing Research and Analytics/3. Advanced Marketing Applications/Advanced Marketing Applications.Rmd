@@ -323,3 +323,6 @@ The 3-factor solution retains the "value" and "leader" factors and adds a clear 
 
 ###8.3.3 EFA Rotations
 
+
+
+###8.3.4 Using Factor Scores for Brands

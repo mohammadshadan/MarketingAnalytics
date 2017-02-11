@@ -14,7 +14,28 @@ output:
 store.df <- read.csv("http://goo.gl/QPDdMl")
 ```
 
+###3.1.1 Store Data: Setting the Structure
+```{r}
+k.stores <- 20 # 20 stores, using "k." for "constant"
+k.weeks <- 104 # 2 years of data each
+# create a data frame of initially missing values to hold the data
+store.df <- data.frame(matrix(NA, ncol=10, nrow=k.stores*k.weeks))
+names(store.df) <- c("storeNum", "Year", "Week", "p1sales", "p2sales",
+ "p1price", "p2price", "p1prom", "p2prom", "country")
 
+dim(store.df)
+
+store.num <- 101:(100+k.stores)
+store.cty <- c(rep("US", 3), rep("DE", 5), rep("GB", 3), rep("BR", 2),
+ rep("JP", 4), rep("AU", 1), rep("CN", 2))
+
+length(store.cty)
+
+store.df$storeNum <- rep(store.num, each=k.weeks)
+store.df$country <- rep(store.cty, each=k.weeks)
+rm(store.num, store.cty) # clean up
+
+```
 ```{r}
 rm(ls()=all)
 k.stores <- 20  # 20 stores, using "k." for "constant"
