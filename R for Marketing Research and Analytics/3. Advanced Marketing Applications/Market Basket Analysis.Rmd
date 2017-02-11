@@ -57,6 +57,9 @@ summary(Groceries)
 class(Groceries)
 inspect(head(Groceries, 3))
 
+#To save the transactions Groceries as csv File
+# write(Groceries, file = "Groceries2.csv", sep=",")
+
 groc.rules <- apriori(Groceries, parameter=list(supp=0.01, conf=0.3, target="rules"))
 
 inspect(subset(groc.rules, lift > 3))
