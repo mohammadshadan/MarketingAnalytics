@@ -1,14 +1,26 @@
 # Advanced Marketing Applications
 MOHAMMAD SHADAN  
 February 1, 2017  
+Marketing data sets often have many variables-many dimensions-and it is advantageous to reduce these to smaller sets of variables to consider.    
 
-Three common methods to reduce complexity by reducing the number of dimensions in the data. 
+For instance, we might have many items on a consumer survey that reflect a smaller number of underlying concepts such as :
+
+- **customer satisfaction** with a service, 
+- **category leadership** for a brand, or 
+- **luxury** for a product. 
+
+If we can reduce the data to its underlying dimensions, we can more clearly identify the relationships among concepts.
+
+
+Three common methods to reduce complexity by reducing the number of dimensions in the data :
 
 - **Principal component analysis (PCA)** attempts to find uncorrelated linear dimensions that capture maximal variance in the data. 
 
 - **Exploratory factor analysis (EFA)** also attempts to capture variance with a small number of dimensions while seeking to make the dimensions interpretable in terms of the original variables. 
 
 - **Multidimensional scaling (MDS)** maps similarities among observations in terms of a low-dimension space such as a two-dimensional plot. MDS can work with metric data and with non-metric data such as categorical or ordinal data.
+
+PCA is often associated with **perceptual maps**, which are visualizations of respondents' associations among brands or products.
 
 ##8.1 Consumer Brand Rating Data  
 
@@ -189,22 +201,8 @@ brand.mean <- brand.mean[, -1]
 
 ```r
 # install.packages("gplots")
-library(gplots)
-```
-
-```
-## 
-## Attaching package: 'gplots'
-```
-
-```
-## The following object is masked from 'package:stats':
-## 
-##     lowess
-```
-
-```r
-library(RColorBrewer)
+suppressMessages(library(gplots))
+suppressMessages(library(RColorBrewer))
 ```
 
 A heatmap is a useful way to examine such results because it colors data points by the intensities of their values. We use 
@@ -222,9 +220,16 @@ heatmap.2(as.matrix(brand.mean),
 ##8.2 Principal Component Analysis and Perceptual Maps
 
 PCA recomputes a set of variables in terms of linear equations, known as components, that capture linear relationships in the data.    
-The **first component** captures as much of the variance as possible from all variables as a single linear function. The **second component** captures as much variance as possible that remains after the first component. This continues until there are as many components as there are variables.    
+The **first component** captures as much of the variance as possible from all variables as a single linear function.   
+The **second component** captures as much variance as possible that remains after the first component. This continues until there are as many components as there are variables.    
 We can use this process to reduce data complexity by retaining and analyzing
 only a subset of those components-such as the first one or two components-that explain a large proportion of the variation in the data.
+
+
+Other Similar Definition :   
+In this technique, variables are transformed into a new set of variables, which are linear combination of original variables. These new set of variables are known as principle components. They are obtained in such a way that _**first principle component accounts for most of the possible variation of original data**_ after which each succeeding component has the highest possible variance.    
+
+The _**second principal component must be orthogonal to the first principal component**_. In other words, it does its best to capture the variance in the data that is not captured by the first principal component. For two-dimensional dataset, there can be only two principal components.
 
 ###8.2.1 PCA Example
 
@@ -330,7 +335,7 @@ cor(my.pca$x) # components have zero correlation
 
 ###8.2.2 Visualizing PCA
 
-A good way to examine the results of PCA is to map the first few components, which allows us to visualize the data in a lower-dimensional space. A common visualization is a biplot, a two-dimensional plot of data points with respect to the first two PCA components, overlaid with a projection of the variables on the components.
+A good way to examine the results of PCA is to map the first few components, which allows us to visualize the data in a lower-dimensional space. A common visualization is a **biplot**, a two-dimensional plot of data points with respect to the first two PCA components, overlaid with a projection of the variables on the components.
 
 
 ```r
@@ -474,8 +479,7 @@ Thus the variable positions on the components are consistent with PCA on the ful
 
 _**So what does the map tell us ?**_
 
-- First we interpret the adjective clusters and relationships and see four areas with well differentiated sets of adjectives and brands that are positioned in proximity. Brands f and g are high on "value," for instance, while a
-and j are relatively high on "fun," which is opposite in direction from leadership adjectives ("leader" and "serious").
+- First we interpret the adjective clusters and relationships and see four areas with well differentiated sets of adjectives and brands that are positioned in proximity. Brands f and g are high on "value," for instance, while a and j are relatively high on "fun," which is opposite in direction from leadership adjectives ("leader" and "serious").
 
 What should you do about the position of your brand e? Again, it depends on the strategic goals. If you wish to increase differentiation, one possibility would be to take action to shift your brand in some direction on the map. Suppose you wanted to move in the direction of brand c. You could look at the specific differences from
 c in the data:  
@@ -523,7 +527,7 @@ in the market.
 
 There are three important caveats in interpreting perceptual maps.
 
-- First, you must choose the level and type of aggregation carefully.We demonstrated the maps using mean rating by brand, but depending on the data and question at hand, it might be more suitable to use median (for ordinal data) or even modal response (for categorical data).
+- First, you must choose the level and type of aggregation carefully. We demonstrated the maps using mean rating by brand, but depending on the data and question at hand, it might be more suitable to use median (for ordinal data) or even modal response (for categorical data).
 
 - Second, the relationships are strictly relative to the product category and the brands and adjectives that are tested.
 
@@ -561,59 +565,7 @@ EFA serves as a data reduction technique in three broad senses:
 
 ```r
 # install.packages("nFactors")
-library(nFactors)
-```
-
-```
-## Loading required package: MASS
-```
-
-```
-## Loading required package: psych
-```
-
-```
-## Loading required package: boot
-```
-
-```
-## 
-## Attaching package: 'boot'
-```
-
-```
-## The following object is masked from 'package:psych':
-## 
-##     logit
-```
-
-```
-## Loading required package: lattice
-```
-
-```
-## 
-## Attaching package: 'lattice'
-```
-
-```
-## The following object is masked from 'package:boot':
-## 
-##     melanoma
-```
-
-```
-## 
-## Attaching package: 'nFactors'
-```
-
-```
-## The following object is masked from 'package:lattice':
-## 
-##     parallel
-```
-
-```r
+suppressMessages(library(nFactors))
 nScree(brand.sc[, 1:9])
 ```
 
@@ -741,3 +693,7 @@ The 3-factor solution retains the "value" and "leader" factors and adds a clear 
 
 ###8.3.3 EFA Rotations
 
+
+How EFA differs from PCA, it differs mathematically because EFA finds latent variables that may be observed with error (see [119]) whereas PCA simply recomputes transformations of the observed data. In other words, EFA focuses on the underlying latent dimensions, whereas PCA focuses on transforming the dimensionality of the data.
+
+###8.3.4 Using Factor Scores for Brands
